@@ -33,17 +33,17 @@ public class FetchTodosService {
         List<TodoItem> filteredList = new ArrayList<>(todoItemList);
 
         if (sortBy == SortBy.BOTH_PRIORITY_FIRST) {
-            filteredList.sort(Comparator.comparing(TodoItem::getPriority).thenComparing(TodoItem::getDueDate, Comparator.nullsLast(Comparator.naturalOrder())));
+            filteredList.sort(Comparator.comparing(TodoItem::getPriority).thenComparing(TodoItem::getDueDate, Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(TodoItem::getCreateDate));
         }
         if (sortBy == SortBy.BOTH_DUE_DATE_FIRST) {
-            filteredList.sort(Comparator.comparing(TodoItem::getDueDate, Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(TodoItem::getPriority));
+            filteredList.sort(Comparator.comparing(TodoItem::getDueDate, Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(TodoItem::getPriority).thenComparing(TodoItem::getCreateDate));
         }
         if (sortBy == SortBy.PRIORITY) {
-            filteredList.sort(Comparator.comparing(TodoItem::getPriority));
+            filteredList.sort(Comparator.comparing(TodoItem::getPriority).thenComparing(TodoItem::getCreateDate));
         }
 
         if (sortBy == SortBy.DUE_DATE) {
-            filteredList.sort(Comparator.comparing(TodoItem::getDueDate, Comparator.nullsLast(Comparator.naturalOrder())));
+            filteredList.sort(Comparator.comparing(TodoItem::getDueDate, Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(TodoItem::getCreateDate));
         }
         if (sortBy == SortBy.DEFAULT) {
             filteredList.sort(Comparator.comparing(TodoItem::getCreateDate));
