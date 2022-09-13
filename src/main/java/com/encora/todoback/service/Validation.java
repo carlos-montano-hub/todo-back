@@ -9,7 +9,6 @@ public class Validation {
 
     public static void validate(TodoItem todoItem) throws MaxNameLengthException, NullRequiredParameterException, ParameterMismatchException {
 
-        if (todoItem.getId() == null) throw new NullRequiredParameterException("Id required");
         if (todoItem.getPriority() == null) throw new NullRequiredParameterException("Priority required");
         if (todoItem.isDone() == null) throw new NullRequiredParameterException("Done required");
 

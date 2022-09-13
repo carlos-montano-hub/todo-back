@@ -1,11 +1,11 @@
 package com.encora.todoback.service;
 
 import com.encora.todoback.model.TodoItem;
-import com.encora.todoback.repository.InMemoryToDoRepository;
 import com.encora.todoback.repository.ToDoRepository;
 import com.encora.todoback.service.exceptions.MaxNameLengthException;
 import com.encora.todoback.service.exceptions.NullRequiredParameterException;
 import com.encora.todoback.service.exceptions.ParameterMismatchException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,20 +14,18 @@ import java.time.LocalDateTime;
 public class InsertTodosService {
 
 
-    private ToDoRepository repository = new InMemoryToDoRepository();
+    private final ToDoRepository repository;
 
-    public Boolean postTodo(TodoItem todoItem) throws MaxNameLengthException, NullRequiredParameterException, ParameterMismatchException {
-        System.out.println(todoItem);
+    @Autowired
+    public InsertTodosService(ToDoRepository repository) {
+        this.repository = repository;
+    }
+
+    public void postTodo(TodoItem todoItem) throws MaxNameLengthException, NullRequiredParameterException, ParameterMismatchException {
 
         Validation.validate(todoItem);
 
         todoItem.setCreateDate(LocalDateTime.now());
         repository.create(todoItem);
-
-        return true;
-
-
     }
-
-
 }

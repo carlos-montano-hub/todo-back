@@ -6,6 +6,7 @@ import com.encora.todoback.model.TodoItem;
 import com.encora.todoback.repository.InMemoryToDoRepository;
 import com.encora.todoback.repository.ToDoRepository;
 import com.encora.todoback.service.exceptions.BadIdException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -15,8 +16,13 @@ import java.util.stream.Collectors;
 public class FetchTodosService {
 
 
-    private ToDoRepository repository = new InMemoryToDoRepository();
+    private final ToDoRepository repository;
 
+
+    @Autowired
+    public FetchTodosService(ToDoRepository repository) {
+        this.repository = repository;
+    }
 
     public Optional<List<TodoItem>> getTodos(Integer page, SortBy sortBy, Boolean filterByDone, String filterByName, Priority filterByPriority) {
         Integer elementsPerPage = 10;
@@ -26,36 +32,46 @@ public class FetchTodosService {
         List<TodoItem> todoItemList = new ArrayList<>(repository.getAll());
         List<TodoItem> filteredList = new ArrayList<>(todoItemList);
 
-        if (sortBy == SortBy.BOTH)
-            filteredList.sort(Comparator.comparing(TodoItem::getPriority).thenComparing(TodoItem::getDueDate, Comparator.nullsFirst(Comparator.naturalOrder())));
+        if (sortBy == SortBy.BOTH_PRIORITY_FIRST) {
+            filteredList.sort(Comparator.comparing(TodoItem::getPriority).thenComparing(TodoItem::getDueDate, Comparator.nullsLast(Comparator.naturalOrder())));
+        }
+        if (sortBy == SortBy.BOTH_DUE_DATE_FIRST) {
+            filteredList.sort(Comparator.comparing(TodoItem::getDueDate, Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(TodoItem::getPriority));
+        }
+        if (sortBy == SortBy.PRIORITY) {
+            filteredList.sort(Comparator.comparing(TodoItem::getPriority));
+        }
 
-        if (sortBy == SortBy.PRIORITY) filteredList.sort(Comparator.comparing(TodoItem::getPriority));
+        if (sortBy == SortBy.DUE_DATE) {
+            filteredList.sort(Comparator.comparing(TodoItem::getDueDate, Comparator.nullsLast(Comparator.naturalOrder())));
+        }
+        if (sortBy == SortBy.DEFAULT) {
+            filteredList.sort(Comparator.comparing(TodoItem::getCreateDate));
+        }
 
-        if (sortBy == SortBy.DUE_DATE)
-            filteredList.sort(Comparator.comparing(TodoItem::getDueDate, Comparator.nullsFirst(Comparator.naturalOrder())));
-
-        if (filterByDone != null)
+        if (filterByDone != null) {
             filteredList = filteredList.stream().filter(todoItem -> todoItem.isDone() == filterByDone).collect(Collectors.toList());
-
-        if (filterByName != null)
-            filteredList = filteredList.stream().filter(todoItem -> todoItem.getName().equals(filterByName)).collect(Collectors.toList());
-
-        if (filterByPriority != null)
+        }
+        if (filterByName != null) {
+            filteredList = filteredList.stream().filter(todoItem ->
+                    todoItem.getName().contains(new StringBuilder(filterByName))
+            ).collect(Collectors.toList());
+        }
+        if (filterByPriority != null) {
             filteredList = filteredList.stream().filter(todoItem -> todoItem.getPriority().equals(filterByPriority)).collect(Collectors.toList());
+        }
+        if (filteredList.size() <= 10) {
+            return Optional.of(filteredList);
+        }
 
-        if (filteredList.size() <= 10) return Optional.of(filteredList);
-        //System.out.println("size: " + filteredList.size());
-
-        if (startIndex >= filteredList.size()) return Optional.empty();
-        //System.out.println("size: " + filteredList.size());
-
+        if (startIndex >= filteredList.size()) {
+            return Optional.empty();
+        }
         List<TodoItem> finalList = new ArrayList<>();
         for (int i = startIndex; i <= endIndex; i++) {
             if (i < filteredList.size()) finalList.add(filteredList.get(i));
         }
 
-
-        //System.out.println("size: " + finalList.size());
         return Optional.of(finalList);
     }
 
@@ -74,7 +90,7 @@ public class FetchTodosService {
 
             List<Long> avgList = todoItemList.stream().map(todoItem -> todoItem.getTimeToComplete().toSeconds()).toList();
 
-            Integer avg = 0;
+            int avg = 0;
             for (Long minutes : avgList) {
                 avg += minutes.intValue();
             }
@@ -119,27 +135,16 @@ public class FetchTodosService {
     }
 
     public Integer getSize
-            (Integer page, SortBy sortBy, Boolean filterByDone, String filterByName, Priority filterByPriority) {
-        Integer elementsPerPage = 10;
-        int startIndex = page * elementsPerPage - elementsPerPage;
-        int endIndex = page * elementsPerPage - 1;
+            (Boolean filterByDone, String filterByName, Priority filterByPriority) {
 
-        List<TodoItem> todoItemList = new ArrayList<>(repository.getAll());
-        List<TodoItem> filteredList = new ArrayList<>(todoItemList);
+        List<TodoItem> filteredList = new ArrayList<>(repository.getAll());
 
-        if (sortBy == SortBy.BOTH)
-            filteredList.sort(Comparator.comparing(TodoItem::getPriority).thenComparing(TodoItem::getDueDate, Comparator.nullsFirst(Comparator.naturalOrder())));
-
-        if (sortBy == SortBy.PRIORITY) filteredList.sort(Comparator.comparing(TodoItem::getPriority));
-
-        if (sortBy == SortBy.DUE_DATE)
-            filteredList.sort(Comparator.comparing(TodoItem::getDueDate, Comparator.nullsFirst(Comparator.naturalOrder())));
 
         if (filterByDone != null)
             filteredList = filteredList.stream().filter(todoItem -> todoItem.isDone() == filterByDone).collect(Collectors.toList());
 
         if (filterByName != null)
-            filteredList = filteredList.stream().filter(todoItem -> todoItem.getName().equals(filterByName)).collect(Collectors.toList());
+            filteredList = filteredList.stream().filter(todoItem -> todoItem.getName().contains(filterByName)).collect(Collectors.toList());
 
         if (filterByPriority != null)
             filteredList = filteredList.stream().filter(todoItem -> todoItem.getPriority().equals(filterByPriority)).collect(Collectors.toList());

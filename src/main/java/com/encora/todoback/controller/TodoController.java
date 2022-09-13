@@ -9,6 +9,7 @@ import com.encora.todoback.service.InsertTodosService;
 import com.encora.todoback.service.SortBy;
 import com.encora.todoback.service.UpdateTodosService;
 import com.encora.todoback.service.exceptions.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,15 +23,22 @@ import java.util.Optional;
 @CrossOrigin(origins = "http://localhost:8080/")
 public class TodoController {
 
-    FetchTodosService fetchTodosService = new FetchTodosService();
-    InsertTodosService insertTodosService = new InsertTodosService();
 
-    UpdateTodosService updateTodosService = new UpdateTodosService();
+    private final FetchTodosService fetchTodosService;
+    private final InsertTodosService insertTodosService;
 
+    private final UpdateTodosService updateTodosService;
+
+    @Autowired
+    public TodoController(FetchTodosService fetchTodosService, InsertTodosService insertTodosService, UpdateTodosService updateTodosService) {
+        this.fetchTodosService = fetchTodosService;
+        this.insertTodosService = insertTodosService;
+        this.updateTodosService = updateTodosService;
+    }
 
     @GetMapping
     public Optional<List<TodoItem>> getTodos(@RequestParam(defaultValue = "1") Integer page,
-                                             @RequestParam(defaultValue = "BOTH") SortBy sortBy,
+                                             @RequestParam(defaultValue = "DEFAULT") SortBy sortBy,
                                              @RequestParam(required = false) Boolean filterByDone,
                                              @RequestParam(required = false) String filterByName,
                                              @RequestParam(required = false) Priority filterByPriority) {
@@ -56,12 +64,10 @@ public class TodoController {
     }
 
     @GetMapping("/size")
-    public ModelSize getSize(@RequestParam(defaultValue = "1") Integer page,
-                             @RequestParam(defaultValue = "BOTH") SortBy sortBy,
-                             @RequestParam(required = false) Boolean filterByDone,
+    public ModelSize getSize(@RequestParam(required = false) Boolean filterByDone,
                              @RequestParam(required = false) String filterByName,
                              @RequestParam(required = false) Priority filterByPriority) {
-        return new ModelSize(fetchTodosService.getSize(page, sortBy, filterByDone, filterByName, filterByPriority));
+        return new ModelSize(fetchTodosService.getSize(filterByDone, filterByName, filterByPriority));
     }
 
 

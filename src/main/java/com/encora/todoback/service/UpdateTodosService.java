@@ -5,6 +5,7 @@ import com.encora.todoback.model.TodoItem;
 import com.encora.todoback.repository.InMemoryToDoRepository;
 import com.encora.todoback.repository.ToDoRepository;
 import com.encora.todoback.service.exceptions.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -14,8 +15,12 @@ import java.time.LocalDateTime;
 public class UpdateTodosService {
 
 
-    private ToDoRepository repository = new InMemoryToDoRepository();
+    private final ToDoRepository repository;
 
+    @Autowired
+    public UpdateTodosService(ToDoRepository repository) {
+        this.repository = repository;
+    }
 
     //This method should only update the name, dueDate and priority
     public Boolean editTodo(Integer id, TodoItem newTodoItem) throws ParameterMismatchException, MaxNameLengthException, NullRequiredParameterException, IdNotPresentException {

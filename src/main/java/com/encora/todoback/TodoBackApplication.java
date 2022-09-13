@@ -18,8 +18,9 @@ public class TodoBackApplication {
         ToDoRepository repository = new InMemoryToDoRepository();
 
 
+        // Testing data
         for (int i = 1; i <= 12; i++) {
-            repository.create(new TodoItem(i, "test" + i, LocalDate.now().plusDays(i), false, LocalDateTime.now(), Priority.LOW));
+            repository.create(new TodoItem(i, "test", LocalDate.now().plusDays(i), false, LocalDateTime.now(), Priority.LOW));
         }
 
 

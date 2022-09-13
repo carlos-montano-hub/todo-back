@@ -1,10 +1,7 @@
 package com.encora.todoback.repository;
 
-import com.encora.todoback.model.Priority;
 import com.encora.todoback.model.TodoItem;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 

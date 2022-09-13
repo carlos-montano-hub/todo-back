@@ -1,10 +1,15 @@
 package com.encora.todoback.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@JsonSerialize
+@JsonDeserialize
 public class TodoItem implements Comparable<TodoItem> {
 
 

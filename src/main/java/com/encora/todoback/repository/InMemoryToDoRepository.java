@@ -15,7 +15,7 @@ import java.util.Set;
 @Repository
 public class InMemoryToDoRepository implements ToDoRepository {
 
-    private InMemoryDB inMemoryDB = InMemoryDB.getInstance();
+    private final InMemoryDB inMemoryDB = InMemoryDB.getInstance();
 
     public InMemoryToDoRepository() {
     }
@@ -41,6 +41,15 @@ public class InMemoryToDoRepository implements ToDoRepository {
 
     @Override
     public void create(TodoItem todoItem) {
+        Integer newId = 0;
+
+        while (true) {
+            if (inMemoryDB.getTodoItems().get(newId) == null) {
+                todoItem.setId(newId);
+                break;
+            }
+            newId++;
+        }
 
         inMemoryDB.getTodoItems().put(todoItem.getId(), todoItem);
     }
